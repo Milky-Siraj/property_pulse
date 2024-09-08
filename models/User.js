@@ -9,8 +9,7 @@ const UserSchema = new Schema(
     },
     username: {
       type: String,
-
-      required: [true, "Email is required"],
+      required: [true, "Username is required"], // Corrected error message
     },
     image: {
       type: String,
@@ -21,5 +20,8 @@ const UserSchema = new Schema(
     timestamps: true,
   }
 );
-const User = models.user || model("User", UserSchema);
+
+// Corrected the capitalization of "User"
+const User = models.User || model("User", UserSchema);
+
 export default User;
