@@ -6,6 +6,7 @@ import profileDefault from "@/assets/images/profile.png";
 import { useState, useEffect } from "react";
 import Spinner from "@/components/Spinner";
 import Link from "next/link";
+import { toast } from "react-toastify";
 
 const ProfilePage = () => {
   const { data: session } = useSession();
@@ -60,8 +61,7 @@ const ProfilePage = () => {
         setProperties(updatedProperties);
         toast.success("deleted successfully");
       } else {
-        console.log(error);
-        toast.error("deletion failed");
+        toast.error("failed to delete");
       }
     } catch (error) {
       console.log(error);
