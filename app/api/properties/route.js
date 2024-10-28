@@ -1,40 +1,40 @@
 import connectDB from "@/config/database";
 import Property from "@/models/Property";
 import { getSessionUser } from "@/utils/getSessionUser";
-// GET/api/properties
+import cloudinary from "@/config/cloudinary";
+
+// GET /api/properties
 export const GET = async (request) => {
   try {
     await connectDB();
 
     const properties = await Property.find({});
-
-    return new Response(JSON.stringify(properties), {
-      status: 200,
-    });
+    return new Response(JSON.stringify(properties), { status: 200 });
   } catch (error) {
     console.log(error);
     return new Response("Something Went Wrong", { status: 500 });
   }
 };
+
 export const POST = async (request) => {
   try {
     await connectDB();
 
     const sessionUser = await getSessionUser();
-
     if (!sessionUser || !sessionUser.userId) {
       return new Response("Unauthorized", { status: 401 });
     }
 
     const { userId } = sessionUser;
     const formData = await request.formData();
+
     // Access all values from amenities and images
     const amenities = formData.getAll("amenities");
     const images = formData
       .getAll("images")
       .filter((image) => image.name !== "");
 
-    //create propertyData object for database
+    // Create propertyData object for database
     const propertyData = {
       type: formData.get("type"),
       name: formData.get("name"),
@@ -62,17 +62,31 @@ export const POST = async (request) => {
       owner: userId,
     };
 
+    // const imageUploadPromises = images.map(async (image) => {
+    //   // Convert the File object to a Buffer
+    //   const imageBuffer = Buffer.from(await image.arrayBuffer());
+
+    //   // Make request to upload to cloudinary
+    //   const result = await cloudinary.uploader.upload(imageBuffer, {
+    //     folder: "propertyPulse",
+    //     resource_type: "image", // Specify resource type for Cloudinary
+    //   });
+
+    //   return result.secure_url;
+    // });
+
+    // // Wait for all images to upload
+    // const uploadedImages = await Promise.all(imageUploadPromises);
+
+    // // Add uploaded images to the propertyData object
+    // propertyData.images = uploadedImages;
+
     const newProperty = new Property(propertyData);
     await newProperty.save();
 
     return Response.redirect(
       `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
     );
-
-    console.log(propertyData);
-    // return new Response(JSON.stringify({ message: "Success" }), {
-    //   status: 200,
-    // });
   } catch (error) {
     console.log(error);
     return new Response(JSON.stringify({ message: "Failed to add property" }), {
