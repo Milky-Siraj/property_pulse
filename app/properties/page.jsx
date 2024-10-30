@@ -2,13 +2,21 @@ import PropertyCard from "@/components/PropertyCard";
 import { fetchProperties } from "@/utils/requests";
 
 const PropertiesPage = async () => {
-  const properties = await fetchProperties();
-
-  properties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  let properties = [];
+  try {
+    properties = await fetchProperties();
+    console.log("Fetched properties:", properties);
+    // properties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    return <p>Failed to load properties. Please try again later.</p>;
+  }
 
   return (
     <section className="px-4 py-6">
       <div className="container-xl lg:container m-auto px-4 py-6">
+        <p>Number of properties fetched: {properties.length}</p>{" "}
+        {/* Temporary check */}
         {properties.length === 0 ? (
           <p>No properties found.</p>
         ) : (
