@@ -5,7 +5,7 @@ const PropertiesPage = async () => {
   let properties = [];
   try {
     properties = await fetchProperties();
-    console.log("Fetched properties:", properties);
+    // console.log("Fetched properties:", properties);
     // properties.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } catch (error) {
     console.error("Error fetching properties:", error);
