@@ -1,12 +1,12 @@
 import React from "react";
 import { FaBookmark } from "react-icons/fa";
 import { useSession } from "next-auth/react";
-// import { toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { useState, useEffect } from "react";
 
 const BookmarkButton = ({ property }) => {
-  // const { data: session } = useSession();
-  // const userId = session?.user?.id;
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
 
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [loading, setLoading] = useState(true);
