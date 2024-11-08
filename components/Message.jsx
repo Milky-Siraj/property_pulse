@@ -12,7 +12,7 @@ const Message = ({ message }) => {
         method: "PUT",
       });
 
-      if (res === 200) {
+      if (res.status === 200) {
         const { read } = await res.json();
         setIsRead(read);
         if (read) {
