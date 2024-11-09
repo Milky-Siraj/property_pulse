@@ -1,10 +1,30 @@
+"use client";
 import React from "react";
 import { fetchProperties } from "@/utils/requests";
 import PropertyCard from "@/components/PropertyCard";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
-const HomeProperties = async () => {
-  const properties = await fetchProperties();
+const HomeProperties = () => {
+  const [properties, setProperties] = useState([]);
+
+  useEffect(() => {
+    const fetchProperties = async () => {
+      try {
+        const res = await fetch("/api/properties");
+
+        if (!res.ok) {
+          throw new Error("failed to fetch data");
+        }
+        const data = await res.json();
+        setProperties(data.properties);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchProperties();
+  }, []);
+
   const recentProperties = properties
     .sort(() => Math.random() - Math.random())
     .slice(0, 3);
