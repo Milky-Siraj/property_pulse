@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   FaBed,
   FaBath,
@@ -23,9 +24,12 @@ const FeaturedPropertiesCard = ({ property }) => {
 
   return (
     <div className="bg-white rounded-xl shadow-md relative flex flex-col md:flex-row">
-      <img
-        src="images/properties/f1.jpg"
+      <Image
+        src={`/images/properties/${property.images[0]}`}
         alt=""
+        width={0}
+        height={0}
+        sizes="100vw"
         className="w-full h-auto rounded-t-xl md:rounded-tr-none md:rounded-l-xl w-full md:w-2/5"
       />
       <div className="p-6">
@@ -40,30 +44,40 @@ const FeaturedPropertiesCard = ({ property }) => {
             {property.beds} <span className="md:hidden lg:inline">Beds</span>
           </p>
           <p>
-            <i className="fa-solid fa-bath"></i> {property.baths}{" "}
+            <FaBath className="inline-block mr-2" /> {property.baths}{" "}
             <span className="md:hidden lg:inline">Baths</span>
           </p>
           <p>
-            <i className="fa-solid fa-ruler-combined"></i>
+            <FaRulerCombined className="inline-block mr-2" />
             {property.square_feet}{" "}
             <span className="md:hidden lg:inline">sqft</span>
           </p>
         </div>
 
         <div className="flex justify-center gap-4 text-green-900 text-sm mb-4">
-          <p>
-            <i className="fa-solid fa-money-bill"></i> Nightly
-          </p>
-          <p>
-            <i className="fa-solid fa-money-bill"></i> Weekly
-          </p>
+          {property.rates.nightly && (
+            <p>
+              <FaMoneyBill className="inline mr-2" /> Nightly
+            </p>
+          )}
+          {property.rates.monthly && (
+            <p>
+              <FaMoneyBill className="inline mr-2" /> Monthly
+            </p>
+          )}
+          {property.rates.weekly && (
+            <p>
+              <FaMoneyBill className="inline mr-2" /> Weekly
+            </p>
+          )}
         </div>
 
         <div className="border border-gray-200 mb-5"></div>
 
         <div className="flex flex-col lg:flex-row justify-between">
           <div className="flex align-middle gap-2 mb-4 lg:mb-0">
-            <i className="fa-solid fa-location-dot text-lg text-orange-700"></i>
+            <FaMapMarker className="inline-block mr-2" />
+
             <span className="text-orange-700">
               {property.location.city} {property.location.state}
             </span>
