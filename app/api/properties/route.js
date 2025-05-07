@@ -46,59 +46,91 @@ export const POST = async (request) => {
       .getAll("images")
       .filter((image) => image.name !== "");
 
+    // Validate required fields
+    const type = formData.get("type");
+    if (!type) {
+      return new Response(
+        JSON.stringify({ message: "Property type is required" }),
+        { status: 400 }
+      );
+    }
+
     // Create propertyData object for database
     const propertyData = {
-      type: formData.get("type"),
-      name: formData.get("name"),
-      description: formData.get("description"),
+      type: type,
+      name: formData.get("name") || "",
+      description: formData.get("description") || "",
       location: {
-        street: formData.get("location.street"),
-        city: formData.get("location.city"),
-        state: formData.get("location.state"),
-        zipcode: formData.get("location.zipcode"),
+        street: formData.get("location.street") || "",
+        city: formData.get("location.city") || "",
+        state: formData.get("location.state") || "",
+        zipcode: formData.get("location.zipcode") || "",
       },
-      beds: formData.get("beds"),
-      baths: formData.get("baths"),
-      square_feet: formData.get("square_feet"),
+      beds: formData.get("beds") || "",
+      baths: formData.get("baths") || "",
+      square_feet: formData.get("square_feet") || "",
       amenities,
       rates: {
-        weekly: formData.get("rates.weekly"),
-        monthly: formData.get("rates.monthly"),
-        nightly: formData.get("rates.nightly"),
+        weekly: formData.get("rates.weekly") || "",
+        monthly: formData.get("rates.monthly") || "",
+        nightly: formData.get("rates.nightly") || "",
       },
       seller_info: {
-        name: formData.get("seller_info.name"),
-        email: formData.get("seller_info.email"),
-        phone: formData.get("seller_info.phone"),
+        name: formData.get("seller_info.name") || "",
+        email: formData.get("seller_info.email") || "",
+        phone: formData.get("seller_info.phone") || "",
       },
       owner: userId,
     };
 
-    // const imageUploadPromises = images.map(async (image) => {
-    //   // Convert the File object to a Buffer
-    //   const imageBuffer = Buffer.from(await image.arrayBuffer());
+    // Log the property data for debugging
+    console.log('Creating property with data:', propertyData);
 
-    //   // Make request to upload to cloudinary
-    //   const result = await cloudinary.uploader.upload(imageBuffer, {
-    //     folder: "propertyPulse",
-    //     resource_type: "image", // Specify resource type for Cloudinary
-    //   });
+    // Upload images to Cloudinary
+    const imageUploadPromises = [];
 
-    //   return result.secure_url;
-    // });
+    for (const image of images) {
+      try {
+        // Convert the image to base64
+        const bytes = await image.arrayBuffer();
+        const buffer = Buffer.from(bytes);
+        const base64String = buffer.toString("base64");
+        
+        // Upload to Cloudinary
+        const result = await cloudinary.uploader.upload(
+          `data:${image.type};base64,${base64String}`,
+          {
+            folder: "propertyPulse",
+            resource_type: "auto",
+          }
+        );
 
-    // // Wait for all images to upload
-    // const uploadedImages = await Promise.all(imageUploadPromises);
+        imageUploadPromises.push(result.secure_url);
+      } catch (error) {
+        console.error("Error processing image:", error);
+        return new Response(
+          JSON.stringify({ message: "Error uploading images" }),
+          { status: 500 }
+        );
+      }
+    }
 
-    // // Add uploaded images to the propertyData object
-    // propertyData.images = uploadedImages;
+    // Wait for all images to be uploaded
+    const uploadedImages = await Promise.all(imageUploadPromises);
+    // Add the uploaded images to propertyData
+    propertyData.images = uploadedImages;
 
-    const newProperty = new Property(propertyData);
-    await newProperty.save();
-
-    return Response.redirect(
-      `${process.env.NEXTAUTH_URL}/properties/${newProperty._id}`
-    );
+    try {
+      const newProperty = new Property(propertyData);
+      await newProperty.save();
+      return new Response(JSON.stringify(newProperty), { status: 201 });
+    } catch (error) {
+      console.error("Error saving property:", error);
+      return new Response(
+        JSON.stringify({ message: error.message || "Error saving property" }),
+        { status: 500 }
+      );
+    }
   } catch (error) {
     console.log(error);
     return new Response(JSON.stringify({ message: "Failed to add property" }), {

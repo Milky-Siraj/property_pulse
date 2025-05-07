@@ -85,12 +85,70 @@ const PropertyAddForm = () => {
     }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const formData = new FormData();
+
+      // Add all the fields to formData
+      formData.append('type', fields.type || '');
+      formData.append('name', fields.name || '');
+      formData.append('description', fields.description || '');
+      formData.append('location.street', fields.location.street || '');
+      formData.append('location.city', fields.location.city || '');
+      formData.append('location.state', fields.location.state || '');
+      formData.append('location.zipcode', fields.location.zipcode || '');
+      formData.append('beds', fields.beds || '');
+      formData.append('baths', fields.baths || '');
+      formData.append('square_feet', fields.square_feet || '');
+      formData.append('rates.weekly', fields.rates.weekly || '');
+      formData.append('rates.monthly', fields.rates.monthly || '');
+      formData.append('rates.nightly', fields.rates.nightly || '');
+      formData.append('seller_info.name', fields.seller_info.name || '');
+      formData.append('seller_info.email', fields.seller_info.email || '');
+      formData.append('seller_info.phone', fields.seller_info.phone || '');
+
+      // Add amenities
+      fields.amenities.forEach(amenity => {
+        formData.append('amenities', amenity);
+      });
+
+      // Add images
+      fields.images.forEach(image => {
+        formData.append('images', image);
+      });
+
+      // Log the form data for debugging
+      console.log('Submitting form data:', {
+        type: fields.type,
+        name: fields.name,
+        // ... other fields
+      });
+
+      const response = await fetch('/api/properties', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        window.location.href = `/properties/${data._id}`;
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add property');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert(error.message || 'Failed to add property. Please try again.');
+    }
+  };
+
   return (
     mounted && (
       <form
-        action="/api/properties"
-        method="POST"
-        encType="multiport/form-data"
+        onSubmit={handleSubmit}
+        encType="multipart/form-data"
       >
         <h2 className="text-3xl text-center font-semibold mb-6">
           Add Property
