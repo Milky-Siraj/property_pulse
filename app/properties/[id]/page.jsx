@@ -11,6 +11,7 @@ import Spinner from "@/components/Spinner";
 import BookmarkButton from "@/components/BookmarkButton";
 import ShareButton from "@/components/ShareButton";
 import PropertyContactForm from "@/components/PropertyContactForm";
+import PropertyImages from "@/components/PropertyImages";
 
 const PropertyPage = () => {
   const { id } = useParams();
@@ -68,6 +69,7 @@ const PropertyPage = () => {
               </div>
             </div>
           </section>
+          <PropertyImages images={property.images} />
         </>
       )}
     </>
